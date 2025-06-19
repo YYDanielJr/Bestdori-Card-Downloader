@@ -87,8 +87,10 @@ public class DownloadActivity extends AppCompatActivity {
         ContentResolver resolver = context.getContentResolver();
 
         ContentValues values = new ContentValues();
-        if(mime)
-        values.put(MediaStore.Images.Media.DISPLAY_NAME, fileName);
+        if(mimeType.contains("jpg"))
+            values.put(MediaStore.Images.Media.DISPLAY_NAME, fileName + ".jpg");
+        else
+            values.put(MediaStore.Images.Media.DISPLAY_NAME, fileName + ".png");
         values.put(MediaStore.Images.Media.MIME_TYPE, mimeType);
         values.put(MediaStore.Images.Media.RELATIVE_PATH, relativePath);
         values.put(MediaStore.Images.Media.IS_PENDING, 1);
