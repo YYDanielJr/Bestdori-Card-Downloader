@@ -11,6 +11,7 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.activity.result.ActivityResultCallback;
@@ -92,18 +93,23 @@ public class MainActivity extends AppCompatActivity implements AddCardManuallyDi
         button_start.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // 开始下载，跳转到下载Activity
-                Intent intent = new Intent(MainActivity.this, DownloadActivity.class);
-                intent.putExtra("CARD_LIST", (Serializable)cardList);
-                boolean isUpscaleEnabled = checkBox.isChecked();
-                intent.putExtra("UPSCALE", isUpscaleEnabled);
-                startActivity(intent);
+                if(!cardList.isEmpty()) {
+                    // 开始下载，跳转到下载Activity
+                    Intent intent = new Intent(MainActivity.this, DownloadActivity.class);
+                    intent.putExtra("CARD_LIST", (Serializable)cardList);
+                    boolean isUpscaleEnabled = checkBox.isChecked();
+                    intent.putExtra("UPSCALE", isUpscaleEnabled);
+                    startActivity(intent);
 
-                cardList.clear();
-                WorklistAdapter adapter = new WorklistAdapter(MainActivity.this, R.layout.worklist_item, cardList);
-                if(lv_worklist != null) {
-                    lv_worklist.setAdapter(adapter);
+                    cardList.clear();
+                    WorklistAdapter adapter = new WorklistAdapter(MainActivity.this, R.layout.worklist_item, cardList);
+                    if(lv_worklist != null) {
+                        lv_worklist.setAdapter(adapter);
+                    }
+                } else {
+                    Toast.makeText(MainActivity.this, R.string.toast_nocard, Toast.LENGTH_LONG).show();
                 }
+
             }
         });
 

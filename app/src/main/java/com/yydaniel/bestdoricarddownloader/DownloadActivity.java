@@ -151,48 +151,6 @@ public class DownloadActivity extends AppCompatActivity {
                 IOUtils.copy(is, fos);
 
                 return file;
-
-//                    // --------------------------------------------------------------------------
-//
-//                    String relativePath = Environment.DIRECTORY_DCIM + "/BestdoriCardDownloader";
-//                    // 1. 创建目标目录（如果不存在）
-//
-//
-//                    // 2. 构建 MediaStore 元数据
-//                    ContentValues values = new ContentValues();
-//                    values.put(MediaStore.Images.Media.DISPLAY_NAME, fileName);
-//                    values.put(MediaStore.Images.Media.MIME_TYPE, "image/png");
-//                    values.put(MediaStore.Images.Media.RELATIVE_PATH, relativePath);
-//                    // values.put(MediaStore.Images.Media.IS_PENDING, 1); // 标记为临时文件
-//
-//                    ContentResolver resolver = DownloadActivity.this.getContentResolver();
-//                    Uri uri = resolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
-//
-//                    if (uri != null) {
-//                        try (InputStream inputStream = new FileInputStream(file);
-//                             OutputStream outputStream = resolver.openOutputStream(uri)) {
-//
-//                            // 4. 复制文件内容
-//                            byte[] buffer = new byte[4096];
-//                            int bytesRead;
-//                            while ((bytesRead = inputStream.read(buffer)) != -1) {
-//                                if (outputStream != null) {
-//                                    outputStream.write(buffer, 0, bytesRead);
-//                                }
-//                            }
-//
-//                            // 5. 标记文件操作完成
-//                            values.clear();
-//                            values.put(MediaStore.Images.Media.IS_PENDING, 0);
-//                            resolver.update(uri, values, null, null);
-//
-//                        } catch (IOException e) {
-//                            e.printStackTrace();
-//                            // 处理异常：删除未完成的文件
-//                            resolver.delete(uri, null, null);
-//                        }
-//                    }
-//                }
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -225,7 +183,7 @@ public class DownloadActivity extends AppCompatActivity {
         return null;
     }
 
-    public void fetch(CardBundle bundle, boolean isUpscaleEnabled) {
+    public void fetch(CardBundle bundle, boolean isUpscaleEnabled, AtomicInteger upscaleFailCounter, AtomicInteger failCounter) {
         try {
             // Step 1：获取卡面JSON文件
             JSONObject cardData = null;
@@ -274,6 +232,9 @@ public class DownloadActivity extends AppCompatActivity {
                 copyFileToMediaStore(DownloadActivity.this, file, fileName + "_Real_ESRGAN_Anime_4x", "image/jpg");
             } else {
                 copyFileToMediaStore(DownloadActivity.this, file, fileName, "image/png");
+                if(isUpscaleEnabled) {
+                    upscaleFailCounter.getAndIncrement();
+                }
             }
 
             // Step 7：通知主线程更新UI
@@ -285,7 +246,15 @@ public class DownloadActivity extends AppCompatActivity {
                     tv_progress.setText(String.format("正在下载文件…… （%d/%d）", bar.getProgress(), bar.getMax()));
                 } else {
                     clean();
-                    tv_progress.setText("完成。");
+                    if(failCounter.get() > 0 && upscaleFailCounter.get() == 0) {
+                        tv_progress.setText(failCounter.get() + "张卡面下载失败。");
+                    } else if(failCounter.get() == 0 && upscaleFailCounter.get() > 0) {
+                        tv_progress.setText(upscaleFailCounter.get() + "张卡面超分失败。");
+                    } else if(failCounter.get() > 0 && upscaleFailCounter.get() > 0) {
+                        tv_progress.setText(upscaleFailCounter.get() + "张卡面超分失败，" + failCounter.get() + "张卡面下载失败。");
+                    } else {
+                        tv_progress.setText("完成。");
+                    }
                     Button btn_finish = findViewById(R.id.button_finish);
                     btn_finish.setVisibility(View.VISIBLE);
                 }
@@ -293,8 +262,10 @@ public class DownloadActivity extends AppCompatActivity {
             });
         } catch (JSONException e) {
             System.err.println("JSON解析错误: " + e.getMessage());
+            failCounter.getAndIncrement();
         } catch (Exception e) {
             System.err.println("未知错误: " + e.getMessage());
+            failCounter.getAndIncrement();
         }
     }
 
@@ -338,6 +309,8 @@ public class DownloadActivity extends AppCompatActivity {
         // 单线程的线程池，让每张图片下载有序进行
         ExecutorService executor = Executors.newSingleThreadExecutor();
         AtomicInteger counter = new AtomicInteger(0);
+        AtomicInteger failCounter = new AtomicInteger(0);
+        AtomicInteger upscaleFailCounter = new AtomicInteger(0);
 
         for (CardBundle bundle : cardList) {
 //            fetch(cardList.get(i));
@@ -346,7 +319,7 @@ public class DownloadActivity extends AppCompatActivity {
             executor.execute(() -> {
                 try {
                     // 获取图片的方法
-                    fetch(bundle, isUpscaleEnabled);
+                    fetch(bundle, isUpscaleEnabled, failCounter, upscaleFailCounter);
                 } catch (Exception e) {
                     e.printStackTrace();
                 } finally {

@@ -19,4 +19,5 @@
     <string name="alert_not_valid_card">当前页面不是一张有效的卡面页面。请点击进入一张卡面的详细信息。</string>
     <string name="alert_realesrgan_title">Real-ESRGAN提示</string>
     <string name="alert_realesrgan">Real-ESRGAN是一种AI超分算法。在本程序中，该算法的实现依赖于Vulkan接口。\n\n在本程序中，使用AI超分会将下载自Bestdori的图片进行四倍超分，超分后的图片分辨率为5336*4008，并会在文件名后加以Real_ESRGAN_Anime_4x的后缀。\n\n请注意，该算法对手机GPU的要求比较高。Snapdragon 8 Gen2、Snapdragon 8 Gen3以及Snapdragon 8s Gen3是通过我自己测试可用的处理器。Snapdragon 865超分之后的图片可能出现损坏。联发科处理器、海思处理器、玄戒处理器、瑞芯微处理器等其他品牌处理器均未经过测试。\n\n请根据自己手机的性能量力而行。</string>
+    <string name="toast_nocard">请先向任务队列内添加卡面。通过手动或浏览Bestdori方式添加卡面。</string>
 </resources>

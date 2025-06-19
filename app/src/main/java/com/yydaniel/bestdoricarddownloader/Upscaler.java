@@ -13,7 +13,6 @@ import java.io.OutputStream;
 
 public class Upscaler {
     private final String originalCommand = "realsr-ncnn -i %s -o %s -m models-Real-ESRGAN-anime";
-    boolean isDir;
     private String command;
     private Process process;
     private int commandRunner(Context context, String command) {
@@ -39,17 +38,6 @@ public class Upscaler {
             stdin.flush();
             stdin.close();
 
-//            String line;
-//            while ((line = stdout.readLine()) != null) {
-//                if (line.contains("%")) {
-//                    // 解析进度信息 (示例：提取"15.5%")
-//                    String progress = line.trim().split(" ")[0];
-//                    updateProgress(progress); // 更新UI
-//                }
-//                logOutput(line); // 记录日志
-//            }
-
-            // 6. 等待结束
             int exitCode = process.waitFor();
             return (exitCode == 0) ? 0 : -1;
         } catch (Exception e) {
@@ -99,17 +87,6 @@ public class Upscaler {
 
     public int upscale(Context context) {
         String assetName = "realsr-ncnn";
-//        String destDir = context.getFilesDir().getAbsolutePath();
-//        File destPath = new File(destDir, assetName);
-//        if(!destPath.exists()) {
-//            try {
-//                copyBinaryFromAssets(context, "realsr-ncnn", destPath.getAbsolutePath());
-//                setExecutablePermission(destPath.getAbsolutePath());
-//            } catch (IOException | InterruptedException e) {
-//                e.printStackTrace();
-//                return -1;
-//            }
-//        }
         File target = new File(context.getCacheDir(), assetName);
         if(!target.exists()) {
             try {
@@ -122,9 +99,6 @@ public class Upscaler {
             }
         }
 
-
-        commandRunner(context, command);
-
-        return 0;
+        return commandRunner(context, command);
     }
 }
