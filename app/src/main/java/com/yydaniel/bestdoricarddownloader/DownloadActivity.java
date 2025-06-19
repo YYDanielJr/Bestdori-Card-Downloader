@@ -255,6 +255,7 @@ public class DownloadActivity extends AppCompatActivity {
                     } else {
                         tv_progress.setText("完成。");
                     }
+                    tv_progress.append("\n\n图片已保存至DCIM/BestdoriCardDownload/目录。");
                     Button btn_finish = findViewById(R.id.button_finish);
                     btn_finish.setVisibility(View.VISIBLE);
                 }
