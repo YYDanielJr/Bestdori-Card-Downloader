@@ -99,6 +99,16 @@ public class Upscaler {
             }
         }
 
+        File filesDir = context.getCacheDir();
+        File upscaleCacheDir = new File(filesDir, "upscale_cache");
+        if (!upscaleCacheDir.exists()) {
+            upscaleCacheDir.mkdirs();
+        }
+        File cacheDir = new File(filesDir, "cache");
+        if (!cacheDir.exists()) {
+            cacheDir.mkdirs();
+        }
+
         return commandRunner(context, command);
     }
 }
