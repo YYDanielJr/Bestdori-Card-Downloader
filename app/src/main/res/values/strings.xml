@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Bestdori Card Downloader</string>
+    <string name="app_name">Bestdori 卡面下载器</string>
     <string name="choose_hint">选择一张卡面：</string>
     <string name="worklist_hint">任务列表</string>
     <string name="type_id_hint">你可以手动输入卡面ID，卡面ID按照Bestdori网站显示为基准：</string>
