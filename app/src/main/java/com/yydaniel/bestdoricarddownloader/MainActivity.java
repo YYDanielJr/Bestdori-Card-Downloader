@@ -53,6 +53,25 @@ public class MainActivity extends AppCompatActivity implements AddCardManuallyDi
             }
     );
 
+    // 读取来自BatchAdd的返回值
+    private ActivityResultLauncher<Intent> addFromBatchAddLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            result -> {
+                if (result.getResultCode() == RESULT_OK) {
+                    List<CardBundle> returnedData = (List<CardBundle>)result.getData().getSerializableExtra("CARD_LIST");
+
+                    if(cardList != null && returnedData != null) {
+                        cardList.addAll(returnedData);
+
+                        WorklistAdapter adapter = new WorklistAdapter(MainActivity.this, R.layout.worklist_item, cardList);
+                        if(lv_worklist != null) {
+                            lv_worklist.setAdapter(adapter);
+                        }
+                    }
+                }
+            }
+    );
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -69,6 +88,15 @@ public class MainActivity extends AppCompatActivity implements AddCardManuallyDi
                 AddCardManuallyDialog addCardManuallyDialog = new AddCardManuallyDialog();
                 addCardManuallyDialog.setListener(MainActivity.this);
                 addCardManuallyDialog.show(getSupportFragmentManager(), "ADD_CARD_MANUALLY_DIALOG");
+            }
+        });
+
+        final Button button_batchAdd = findViewById(R.id.button_batch_add);
+        button_batchAdd.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this, BatchAddActivity.class);
+                addFromBatchAddLauncher.launch(intent);
             }
         });
 

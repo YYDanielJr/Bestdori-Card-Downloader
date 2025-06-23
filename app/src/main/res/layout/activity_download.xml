@@ -15,12 +15,15 @@
         android:gravity="center"
         app:layout_constraintBottom_toTopOf="@+id/button_finish">
 
-        <ProgressBar
-            android:id="@+id/progressBar2"
-            style="?android:attr/progressBarStyleHorizontal"
-            android:layout_margin="20sp"
+        <TextView
+            android:id="@+id/tv_realesrgan_warning"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:layout_marginTop="30sp"
+            android:gravity="center"
+            android:paddingLeft="30sp"
+            android:paddingRight="30sp"
+            android:text="@string/tv_warning_realesrgan" />
 
         <TextView
             android:id="@+id/tv_progress"
@@ -30,14 +33,21 @@
             android:text="TextView" />
 
         <TextView
-            android:id="@+id/tv_realesrgan_warning"
-            android:layout_marginTop="30sp"
-            android:paddingLeft="30sp"
-            android:paddingRight="30sp"
+            android:id="@+id/tv_log"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="center"
-            android:text="@string/tv_warning_realesrgan" />
+            android:layout_weight="1"
+            android:background="#67B3B3B3"
+            android:layout_margin="20sp"
+            android:text="TextView" />
+
+        <ProgressBar
+            android:id="@+id/progressBar2"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_margin="20sp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
     </LinearLayout>
 
     <Button

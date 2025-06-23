@@ -15,6 +15,9 @@
         android:theme="@style/Theme.BestdoriCardDownloader"
         tools:targetApi="28">
         <activity
+            android:name=".BatchAddActivity"
+            android:exported="false" />
+        <activity
             android:name=".WebviewActivity"
             android:exported="false" />
         <activity
