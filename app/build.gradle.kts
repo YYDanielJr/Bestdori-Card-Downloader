@@ -12,7 +12,7 @@ android {
         //noinspection ExpiredTargetSdkVersion
         targetSdk = 28
         versionCode = 1
-        versionName = "1.0.3.20250620"
+        versionName = "1.1.0.20250624"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -41,8 +41,8 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
 }
 
@@ -57,4 +57,5 @@ dependencies {
     androidTestImplementation(libs.espresso.core)
     implementation(libs.volley)
     implementation(libs.commons.io)
+    implementation("com.google.android.flexbox:flexbox:3.0.0")
 }

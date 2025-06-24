@@ -15,6 +15,33 @@
         android:gravity="center"
         app:layout_constraintBottom_toTopOf="@+id/button_finish">
 
+        <TextView
+            android:id="@+id/tv_realesrgan_warning"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="30sp"
+            android:gravity="center"
+            android:paddingLeft="30sp"
+            android:paddingRight="30sp"
+            android:text="@string/tv_warning_realesrgan" />
+
+        <TextView
+            android:id="@+id/tv_progress"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:animateLayoutChanges="false"
+            android:scrollbars="vertical"
+            android:id="@+id/rv_log"
+            android:layout_margin="20sp"
+            android:background="#E6E6E6"
+            android:layout_weight="1"
+            android:layout_width="match_parent"
+            android:layout_height="0dp" />
+
         <ProgressBar
             android:id="@+id/progressBar2"
             style="?android:attr/progressBarStyleHorizontal"
@@ -22,22 +49,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 
-        <TextView
-            android:id="@+id/tv_progress"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:text="TextView" />
-
-        <TextView
-            android:id="@+id/tv_realesrgan_warning"
-            android:layout_marginTop="30sp"
-            android:paddingLeft="30sp"
-            android:paddingRight="30sp"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:text="@string/tv_warning_realesrgan" />
     </LinearLayout>
 
     <Button

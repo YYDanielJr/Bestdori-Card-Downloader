@@ -72,6 +72,9 @@ public class WebviewActivity extends AppCompatActivity implements AddFromBestdor
         final WebView webview = findViewById(R.id.Webview_bestdori);
         WebSettings settings = webview.getSettings();
         settings.setJavaScriptEnabled(true);
+        settings.setCacheMode(WebSettings.LOAD_DEFAULT);
+        settings.setDomStorageEnabled(true);
+        settings.setDatabaseEnabled(true);
         webview.loadUrl("https://bestdori.com/info/cards");
 
         FloatingActionButton btn_save = findViewById(R.id.fab_save);

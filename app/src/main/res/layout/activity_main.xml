@@ -32,21 +32,58 @@
             android:textColor="@color/black"
             android:textSize="20sp" />
 
-        <TextView
-            android:id="@+id/textView"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/type_id_hint" />
+            android:orientation="horizontal">
 
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:layout_marginEnd="5sp">
 
-        <Button
-            android:id="@+id/button_add_card_manually"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10sp"
-            android:layout_marginBottom="10sp"
+                <TextView
+                    android:id="@+id/textView"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/type_id_hint" />
 
-            android:text="@string/button_add" />
+                <Button
+                    android:id="@+id/button_add_card_manually"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10sp"
+                    android:layout_marginBottom="10sp"
+
+                    android:text="@string/button_add" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:layout_marginStart="5sp">
+
+                <TextView
+                    android:id="@+id/textView3"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/batch_hint" />
+
+                <Button
+                    android:id="@+id/button_batch_add"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10sp"
+                    android:layout_marginBottom="10sp"
+
+                    android:text="@string/button_batch_add" />
+            </LinearLayout>
+        </LinearLayout>
+
 
         <TextView
             android:id="@+id/textView4"
