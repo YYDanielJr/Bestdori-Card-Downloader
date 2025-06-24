@@ -263,6 +263,7 @@ public class DownloadActivity extends AppCompatActivity implements Upscaler.Outp
                     tv_progress.setText(String.format("正在下载文件…… （%d/%d）", bar.getProgress(), bar.getMax()));
                 } else {
                     clean();
+                    bar.setVisibility(View.INVISIBLE);
                     if(failCounter.get() > 0 && upscaleFailCounter.get() == 0) {
                         tv_progress.setText(failCounter.get() + "张卡面下载失败。");
                     } else if(failCounter.get() == 0 && upscaleFailCounter.get() > 0) {
