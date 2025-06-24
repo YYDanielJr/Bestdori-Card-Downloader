@@ -12,7 +12,7 @@ android {
         //noinspection ExpiredTargetSdkVersion
         targetSdk = 28
         versionCode = 1
-        versionName = "1.1.1.20250624"
+        versionName = "1.1.2.20250624"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
