@@ -25,6 +25,7 @@ import com.yydaniel.bestdoricarddownloader.AddCardManuallyDialog;
 import com.yydaniel.bestdoricarddownloader.CardBundle;
 import com.yydaniel.bestdoricarddownloader.WorklistAdapter;
 
+import java.io.File;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -153,6 +154,16 @@ public class MainActivity extends AppCompatActivity implements AddCardManuallyDi
             }
         });
 
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        File cachrDir = getCacheDir();
+        File characterJsonFile = new File(cachrDir, "characters.json");
+        if(characterJsonFile.exists()) {
+            characterJsonFile.delete();
+        }
     }
 
     // 实现接口回调方法
