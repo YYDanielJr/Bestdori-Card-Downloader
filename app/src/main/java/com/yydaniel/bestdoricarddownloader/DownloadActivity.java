@@ -31,6 +31,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.URL;
+import java.util.Iterator;
 import java.util.List;
 import java.io.FileOutputStream;
 import java.io.InputStream;
@@ -40,6 +41,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.io.IOUtils;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -48,6 +50,7 @@ public class DownloadActivity extends AppCompatActivity implements Upscaler.Outp
     private RecycleViewLogAdapter logAdapter;
     private RecyclerView recyclerViewLog;
     private boolean autoScrollEnabled = true;
+    private JSONObject characters;
 
     private void showOnLog(String log) {
         runOnUiThread(() -> {
@@ -171,8 +174,6 @@ public class DownloadActivity extends AppCompatActivity implements Upscaler.Outp
         URL url = new URL(urlString);
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
         connection.setRequestMethod("GET");
-        connection.setRequestProperty("User-Agent",
-                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3");
         int responseCode = connection.getResponseCode();
         if (responseCode == HttpURLConnection.HTTP_OK) {
             BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
@@ -184,6 +185,33 @@ public class DownloadActivity extends AppCompatActivity implements Upscaler.Outp
             reader.close();
 
             return !response.toString().isEmpty() ? new JSONObject(response.toString()) : null;
+        }
+        return null;
+    }
+
+    private String getCharacterEnglishName(int characterId) {
+        if(characters != null) {
+            Iterator<String> it = characters.keys();
+            while(it.hasNext()) {
+                String key = it.next();
+                int currentIndex = Integer.parseInt(key);
+                if(characterId == currentIndex) {
+                    try {
+                        JSONObject value = characters.getJSONObject(key);
+                        JSONArray names = value.getJSONArray("characterName");
+                        JSONArray nicknames = value.getJSONArray("nickname");
+                        if(nicknames.optString(1) != null && !nicknames.optString(1).equals("null")) {
+                            return nicknames.optString(1);
+                        } else {
+                            String name = names.getString(1);
+                            int firstSpaceIndex = name.indexOf(" ");
+                            return firstSpaceIndex != -1 ? name.substring(0, firstSpaceIndex) : name;
+                        }
+                    } catch (JSONException e) {
+                        return null;
+                    }
+                }
+            }
         }
         return null;
     }
@@ -202,13 +230,13 @@ public class DownloadActivity extends AppCompatActivity implements Upscaler.Outp
             cardData = fetchJson(String.format("https://bestdori.com/api/cards/%d.json", bundle.getCardId()));
             if (cardData == null) return;
 
-            // Step 2. 提取资源集名称
+            // Step 2. 提取资源集名称、卡面角色名称
             String resourceSetName = cardData.optString("resourceSetName");
             if (resourceSetName.isEmpty()) {
                 System.err.println("数据缺失: resourceSetName");
                 return;
             }
-            Log.d("DEBUG_TAG", resourceSetName);
+            int characterId = cardData.getInt("characterId");
 
             // Step 3. 构建图片URL
             String imageType = bundle.isTrained() ? "after_training" : "normal";
@@ -220,7 +248,9 @@ public class DownloadActivity extends AppCompatActivity implements Upscaler.Outp
 
             // Step 4. 获取图片数据
             // 在download方法中，会直接由网络位置下载到私有目录。
-            String fileName = bundle.cardId + "_" + imageType;
+            String charEnglishName = getCharacterEnglishName(characterId);
+
+            String fileName = (charEnglishName == null) ? "" : (charEnglishName + "_") + bundle.cardId + "_" + imageType;
             File file = download(imageUrl, fileName + ".png");
 
             // Step 5：如果有超分就超分
@@ -365,6 +395,8 @@ public class DownloadActivity extends AppCompatActivity implements Upscaler.Outp
             final int index = counter.getAndIncrement();
             executor.execute(() -> {
                 try {
+                    // 获取characters
+                    characters = CharactersFetcher.getCharacters(DownloadActivity.this);
                     // 获取图片的方法
                     fetch(bundle, isUpscaleEnabled, failCounter, upscaleFailCounter);
                 } catch (Exception e) {

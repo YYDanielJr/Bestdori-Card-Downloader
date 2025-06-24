@@ -170,7 +170,7 @@ public class BatchAddActivity extends AppCompatActivity {
                     if(!type.equals("birthday") && !type.equals("kirafes") && !type.equals("others"))
                         ret.add(new CardBundle(Integer.parseInt(key), "jp", false));
                     // 二星及以下没有花后
-                    if(rarity <= 2)
+                    if(rarity > 2)
                         ret.add(new CardBundle(Integer.parseInt(key), "jp", true));
                 }
             } catch (JSONException e) {
@@ -180,10 +180,10 @@ public class BatchAddActivity extends AppCompatActivity {
         return ret;
     }
 
-    private void afterFetching(StringBuilder jsonCards, StringBuilder jsonCharacters) {
+    private void afterFetching(StringBuilder jsonCards, JSONObject characters) {
         try {
             JSONObject cards = new JSONObject(jsonCards.toString());
-            JSONObject characters = new JSONObject(jsonCharacters.toString());
+//            JSONObject characters = CharactersFetcher.getCharacters(BatchAddActivity.this);
 
             int cardAmount = cards.length();
             int characterAmount = characters.length();
@@ -282,17 +282,18 @@ public class BatchAddActivity extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_batch_add_loading);
         String apiUrl = "https://bestdori.com/api/cards/all.5.json";
-        String charactersUrl = "https://bestdori.com/api/characters/main.2.json";
+//        String charactersUrl = "https://bestdori.com/api/characters/main.2.json";
 
         new Thread(() -> {
             try {
                 URL url = new URL(apiUrl);
                 StringBuilder cards = fetchJson(url);
 
-                url = new URL(charactersUrl);
-                StringBuilder characters = fetchJson(url);
+//                url = new URL(charactersUrl);
+//                StringBuilder characters = fetchJson(url);
+                JSONObject characters = CharactersFetcher.getCharacters(BatchAddActivity.this);
 
-                if(cards != null && characters != null) {
+                if(cards != null) {
                     runOnUiThread(() -> {
                         setContentView(R.layout.activity_batch_add);
                         afterFetching(cards, characters);
