@@ -9,14 +9,20 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewTreeObserver;
 import android.widget.Button;
 import android.widget.ProgressBar;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -37,30 +43,29 @@ import org.apache.commons.io.IOUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class DownloadActivity extends AppCompatActivity {
+public class DownloadActivity extends AppCompatActivity implements Upscaler.OutputListener {
 
-    private static void createDirectoryIfNeeded(Context context, String relativePath) {
-        final String collection = MediaStore.Files.getContentUri(MediaStore.VOLUME_EXTERNAL).toString();
-        final String[] projection = {MediaStore.Files.FileColumns._ID};
-        final String selection = MediaStore.Files.FileColumns.RELATIVE_PATH + " LIKE ?";
-        final String[] selectionArgs = {"%" + relativePath + "%"};
+    private RecycleViewLogAdapter logAdapter;
+    private RecyclerView recyclerViewLog;
+    private boolean autoScrollEnabled = true;
 
-        try (Cursor cursor = context.getContentResolver().query(
-                Uri.parse(collection),
-                projection,
-                selection,
-                selectionArgs,
-                null)) {
+    private void showOnLog(String log) {
+        runOnUiThread(() -> {
+            if (logAdapter != null) {
+                logAdapter.addLogItem(log);
 
-            if (cursor == null || cursor.getCount() == 0) {
-                // 创建目录（通过写入占位文件）
-                ContentValues values = new ContentValues();
-                values.put(MediaStore.Files.FileColumns.DISPLAY_NAME, "placeholder");
-                values.put(MediaStore.Files.FileColumns.MIME_TYPE, "text/plain");
-                values.put(MediaStore.Files.FileColumns.RELATIVE_PATH, relativePath);
-                context.getContentResolver().insert(Uri.parse(collection), values);
+                // 如果启用了自动滚动，则滚动到底部
+                if (autoScrollEnabled) {
+                    recyclerViewLog.scrollToPosition(logAdapter.getItemCount() - 1);
+                }
             }
-        }
+        });
+    }
+
+    // 实现回调接口方法
+    @Override
+    public void onNewOutput(final String line) {
+        showOnLog(line + "\n");
     }
 
     private void clean() {
@@ -185,6 +190,13 @@ public class DownloadActivity extends AppCompatActivity {
 
     public void fetch(CardBundle bundle, boolean isUpscaleEnabled, AtomicInteger upscaleFailCounter, AtomicInteger failCounter) {
         try {
+            runOnUiThread(() -> {
+                ProgressBar bar = findViewById(R.id.progressBar2);
+                int currentIndex = bar.getProgress() + 1;
+                int indexAmount = bar.getMax();
+                String log_start = getString(R.string.tv_log_startdownloading);
+                showOnLog(String.format(log_start, currentIndex, indexAmount));
+            });
             // Step 1：获取卡面JSON文件
             JSONObject cardData = null;
             cardData = fetchJson(String.format("https://bestdori.com/api/cards/%d.json", bundle.getCardId()));
@@ -215,7 +227,7 @@ public class DownloadActivity extends AppCompatActivity {
             boolean isUpscaleSuccessful = false;
             if(isUpscaleEnabled) {
                 Upscaler upscaler = new Upscaler(DownloadActivity.this, file.getPath(),  "upscale_cache/" + fileName + "_Real_ESRGAN_Anime_4x.jpg");
-                if(upscaler.upscale(DownloadActivity.this) == 0) {
+                if(upscaler.upscale(DownloadActivity.this, DownloadActivity.this) == 0) {
                     isUpscaleSuccessful = true;
                     String fileNameAfterUpscale = fileName + "_Real_ESRGAN_Anime_4x.jpg";
                     File filesDir = this.getCacheDir();
@@ -240,6 +252,11 @@ public class DownloadActivity extends AppCompatActivity {
             // Step 7：通知主线程更新UI
             runOnUiThread(() -> {
                 ProgressBar bar = findViewById(R.id.progressBar2);
+                int currentIndex = bar.getProgress() + 1;
+
+                String log_over = getString(R.string.tv_log_downloadover);
+                showOnLog(String.format(log_over, currentIndex));
+
                 bar.setProgress(bar.getProgress() + 1);
                 TextView tv_progress = findViewById(R.id.tv_progress);
                 if (bar.getProgress() < bar.getMax()) {
@@ -263,9 +280,11 @@ public class DownloadActivity extends AppCompatActivity {
             });
         } catch (JSONException e) {
             System.err.println("JSON解析错误: " + e.getMessage());
+            showOnLog("JSON解析错误: " + e.getMessage() + "\n");
             failCounter.getAndIncrement();
         } catch (Exception e) {
             System.err.println("未知错误: " + e.getMessage());
+            showOnLog("JSON解析错误: " + e.getMessage() + "\n");
             failCounter.getAndIncrement();
         }
     }
@@ -306,6 +325,32 @@ public class DownloadActivity extends AppCompatActivity {
             TextView tv_upscale = findViewById(R.id.tv_realesrgan_warning);
             tv_upscale.setVisibility(View.GONE);
         }
+
+        // 初始化log日志框
+        recyclerViewLog = findViewById(R.id.rv_log);
+        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
+        recyclerViewLog.setLayoutManager(layoutManager);
+        recyclerViewLog.setItemAnimator(null);
+
+        logAdapter = new RecycleViewLogAdapter();
+        recyclerViewLog.setAdapter(logAdapter);
+
+        // 添加滚动监听器以控制自动滚动
+        recyclerViewLog.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+
+                // 如果用户手动向上滚动，则禁用自动滚动
+                if (dy < 0) {
+                    logAdapter.setAutoScrollEnabled(false);
+                }
+                // 如果用户滚动到底部，则重新启用自动滚动
+                else if (!recyclerView.canScrollVertically(1)) {
+                    logAdapter.setAutoScrollEnabled(true);
+                }
+            }
+        });
 
         // 单线程的线程池，让每张图片下载有序进行
         ExecutorService executor = Executors.newSingleThreadExecutor();

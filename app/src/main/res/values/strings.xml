@@ -20,6 +20,10 @@
     <string name="tv_warning_realesrgan">当前下载的照片会使用Real-ESRGAN算法进行超分。\n超分执行时，会占用大量的GPU资源，会导致设备运行明显卡顿。\n一张照片的下载时间很可能会达到一分钟，请耐心等待，并保持屏幕开启，程序前台运行。</string>
     <string name="tv_saveto">图片已保存至DCIM/BestdoriCardDownload/目录。</string>
     <string name="tv_loading_from_bestdori">正在从Bestdori获取卡面索引……</string>
+
+    <string name="tv_log_startdownloading">正在下载卡面，第%d张，共%d张……\n</string>
+    <string name="tv_log_downloadover">第%d张卡面下载完成。\n</string>
+
     <string name="alert_choose_card">请选择一张卡面</string>
     <string name="alert_not_valid_card">当前页面不是一张有效的卡面页面。请点击进入一张卡面的详细信息。</string>
     <string name="alert_realesrgan_title">Real-ESRGAN提示</string>

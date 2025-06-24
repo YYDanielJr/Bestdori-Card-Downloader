@@ -15,7 +15,12 @@ public class Upscaler {
     private final String originalCommand = "realsr-ncnn -i %s -o %s -m models-Real-ESRGAN-anime";
     private String command;
     private Process process;
-    private int commandRunner(Context context, String command) {
+
+    public interface OutputListener {
+        void onNewOutput(String line);
+    }
+
+    private int commandRunner(Context context, String command, OutputListener listener) {
         String dir = context.getCacheDir().getAbsolutePath();
 
         try {
@@ -37,6 +42,15 @@ public class Upscaler {
             stdin.write(fullCommand.getBytes());
             stdin.flush();
             stdin.close();
+
+            String line;
+            while ((line = stdout.readLine()) != null) {
+                final String outputLine = line;
+                if (listener != null) {
+                    // 通过回调传递输出
+                    listener.onNewOutput(outputLine);
+                }
+            }
 
             int exitCode = process.waitFor();
             return (exitCode == 0) ? 0 : -1;
@@ -60,32 +74,7 @@ public class Upscaler {
         }
     }
 
-    public void setExecutablePermission(String filePath) throws IOException, InterruptedException {
-        // 通过 chmod 命令设置权限
-        Process process = Runtime.getRuntime().exec("chmod 755 " + filePath);
-        process.waitFor();
-    }
-
-    public void copyBinaryFromAssets(Context context, String assetName, String destPath) throws IOException {
-        InputStream is = context.getAssets().open(assetName);
-        FileOutputStream fos = new FileOutputStream(destPath);
-        byte[] buffer = new byte[1024];
-        int length;
-        while ((length = is.read(buffer)) > 0) {
-            fos.write(buffer, 0, length);
-        }
-        fos.close();
-        is.close();
-    }
-
-    public static void setExecutable(File file) {
-        if (file.exists()) {
-            file.setExecutable(true);  // 设置可执行权限
-            file.setReadable(true);    // 同时确保可读
-        }
-    }
-
-    public int upscale(Context context) {
+    public int upscale(Context context, OutputListener listener) {
         String assetName = "realsr-ncnn";
         File target = new File(context.getCacheDir(), assetName);
         if(!target.exists()) {
@@ -109,6 +98,6 @@ public class Upscaler {
             cacheDir.mkdirs();
         }
 
-        return commandRunner(context, command);
+        return commandRunner(context, command, listener);
     }
 }
