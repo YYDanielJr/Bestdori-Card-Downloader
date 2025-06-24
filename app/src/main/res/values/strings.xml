@@ -12,6 +12,7 @@
     <string name="button_cancel">取消</string>
     <string name="button_confirm_add">添加</string>
     <string name="button_start">开始下载</string>
+    <string name="button_Choose_all_or_reverse">全选/全不选</string>
     <string name="tv_cardid">卡面编号：</string>
     <string name="tv_select_server">选择服务器：</string>
     <string name="tv_select_server_attention">选择服务器：\n注意，本程序不会探测目前Bestdori的服务器地区设置，因此请确保你选择了正确的服务器地区。</string>

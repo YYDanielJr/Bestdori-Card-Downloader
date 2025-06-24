@@ -57,4 +57,5 @@ dependencies {
     androidTestImplementation(libs.espresso.core)
     implementation(libs.volley)
     implementation(libs.commons.io)
+    implementation("com.google.android.flexbox:flexbox:3.0.0")
 }

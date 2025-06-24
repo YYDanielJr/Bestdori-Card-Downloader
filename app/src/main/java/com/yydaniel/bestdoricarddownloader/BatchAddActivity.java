@@ -1,14 +1,17 @@
 package com.yydaniel.bestdoricarddownloader;
 
 import android.os.Bundle;
+import android.widget.Button;
 import android.widget.CheckBox;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.android.flexbox.FlexboxLayout;
+
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -18,7 +21,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.concurrent.atomic.AtomicReference;
+import java.util.ArrayList;
 
 public class BatchAddActivity extends AppCompatActivity {
     private StringBuilder fetchJson(URL url) throws IOException {
@@ -51,6 +54,22 @@ public class BatchAddActivity extends AppCompatActivity {
         return null;
     }
 
+    private void chooseAllOrReverse(ArrayList<CheckBox> boxes) {
+        boolean isAllSelected = true;
+        // 第一遍循环寻找是否有没有选中的项
+        for(CheckBox i : boxes) {
+            if(!i.isChecked()) {
+                isAllSelected = false;
+                break;
+            }
+        }
+
+        // 第二遍循环设置状态
+        for(CheckBox i : boxes) {
+            i.setChecked(!isAllSelected);
+        }
+    }
+
     private void afterFetching(StringBuilder jsonCards, StringBuilder jsonCharacters) {
         try {
             JSONObject cards = new JSONObject(jsonCards.toString());
@@ -59,16 +78,74 @@ public class BatchAddActivity extends AppCompatActivity {
             int cardAmount = cards.length();
             int characterAmount = characters.length();
             Toast.makeText(BatchAddActivity.this, "卡片个数：" + cardAmount + "，成员个数：" + characterAmount, Toast.LENGTH_LONG).show();
+            TextView tv_currentCards = findViewById(R.id.textView_current_cards);
+            tv_currentCards.setText("共获取 " + cardAmount + " 张卡面");
+            FlexboxLayout parent = findViewById(R.id.flexbox_characters);
+            ArrayList<CheckBox> nameBoxes = new ArrayList<>();
+            ArrayList<CheckBox> attributeBoxes = new ArrayList<>();
+            ArrayList<CheckBox> rarityBoxes = new ArrayList<>();
+            ArrayList<CheckBox> typeBoxes = new ArrayList<>();
 
-            LinearLayout parent = findViewById(R.id.linearLayout_batch_main);
-            TextView viewAbove = findViewById(R.id.tv_characters);
-            TextView viewBelow = findViewById(R.id.tv_stars);
+            // 打包所有同类checkbox
+            attributeBoxes.add(findViewById(R.id.checkBox_attribute_powerful));
+            attributeBoxes.add(findViewById(R.id.checkBox_attribute_cool));
+            attributeBoxes.add(findViewById(R.id.checkBox_attribute_happy));
+            attributeBoxes.add(findViewById(R.id.checkBox_attribute_pure));
 
-//            for(int i = 0; i < characterAmount; i++) {
-//                JSONObject
-//                CheckBox newCheckBox = new CheckBox(this);
-//                newCheckBox.setText();
-//            }
+            rarityBoxes.add(findViewById(R.id.checkBox_star1));
+            rarityBoxes.add(findViewById(R.id.checkBox_star2));
+            rarityBoxes.add(findViewById(R.id.checkBox_star3));
+            rarityBoxes.add(findViewById(R.id.checkBox_star4));
+            rarityBoxes.add(findViewById(R.id.checkBox_star5));
+
+            typeBoxes.add(findViewById(R.id.checkBox_type_pernament));
+            typeBoxes.add(findViewById(R.id.checkBox_type_limited));
+            typeBoxes.add(findViewById(R.id.checkBox_type_dreamfes));
+            typeBoxes.add(findViewById(R.id.checkBox_type_kirafes));
+            typeBoxes.add(findViewById(R.id.checkBox_type_birthday));
+            typeBoxes.add(findViewById(R.id.checkBox_type_event));
+            typeBoxes.add(findViewById(R.id.checkBox_type_campaign));
+            typeBoxes.add(findViewById(R.id.checkBox_type_initial));
+            typeBoxes.add(findViewById(R.id.checkBox_type_others));
+
+            for(int i = 0; i < characterAmount; i++) {
+                JSONObject character = characters.getJSONObject(String.valueOf(i+1));
+                JSONArray names = character.getJSONArray("characterName");
+                String targetName = names.getString(3).replaceAll(" ", "");
+                CheckBox newCheckBox = new CheckBox(this);
+                nameBoxes.add(newCheckBox);
+                newCheckBox.setText(targetName);
+
+                FlexboxLayout.LayoutParams params = new FlexboxLayout.LayoutParams(
+                        FlexboxLayout.LayoutParams.WRAP_CONTENT,
+                        FlexboxLayout.LayoutParams.WRAP_CONTENT
+                );
+
+                newCheckBox.setLayoutParams(params);
+
+                parent.addView(newCheckBox);
+
+            }
+
+            Button button_characters = findViewById(R.id.button_choose_all_chars);
+            button_characters.setOnClickListener((v) -> {
+                chooseAllOrReverse(nameBoxes);
+            });
+
+            Button button_attributes = findViewById(R.id.button_choose_all_attributes);
+            button_attributes.setOnClickListener((v) -> {
+                chooseAllOrReverse(attributeBoxes);
+            });
+
+            Button button_rarities = findViewById(R.id.button_choose_all_stars);
+            button_rarities.setOnClickListener((v) -> {
+                chooseAllOrReverse(rarityBoxes);
+            });
+
+            Button button_types = findViewById(R.id.button_choose_all_types);
+            button_types.setOnClickListener((v) -> {
+                chooseAllOrReverse(typeBoxes);
+            });
 
         } catch (JSONException e) {
             finish();
