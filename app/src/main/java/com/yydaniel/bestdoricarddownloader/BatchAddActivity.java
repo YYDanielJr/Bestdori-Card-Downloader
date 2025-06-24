@@ -166,8 +166,12 @@ public class BatchAddActivity extends AppCompatActivity {
                 String type = character.getString("type");
 
                 if(filter.isSatisfied(characterId, rarity, attribute, type)) {
-                    ret.add(new CardBundle(Integer.parseInt(key), "jp", false));
-                    ret.add(new CardBundle(Integer.parseInt(key), "jp", true));
+                    // 生日卡、闪限和其他特殊卡面没有花前
+                    if(!type.equals("birthday") && !type.equals("kirafes") && !type.equals("others"))
+                        ret.add(new CardBundle(Integer.parseInt(key), "jp", false));
+                    // 二星及以下没有花后
+                    if(rarity <= 2)
+                        ret.add(new CardBundle(Integer.parseInt(key), "jp", true));
                 }
             } catch (JSONException e) {
                 continue;
