@@ -68,7 +68,7 @@ public class DownloadActivity extends AppCompatActivity implements Upscaler.Outp
     // 实现回调接口方法
     @Override
     public void onNewOutput(final String line) {
-        showOnLog(line + "\n");
+        showOnLog(line);
     }
 
     private void clean() {
@@ -280,6 +280,44 @@ public class DownloadActivity extends AppCompatActivity implements Upscaler.Outp
             }
 
             // Step 7：通知主线程更新UI
+//            runOnUiThread(() -> {
+//                ProgressBar bar = findViewById(R.id.progressBar2);
+//                int currentIndex = bar.getProgress() + 1;
+//
+//                String log_over = getString(R.string.tv_log_downloadover);
+//                showOnLog(String.format(log_over, currentIndex));
+//
+////                bar.setProgress(bar.getProgress() + 1);
+//                TextView tv_progress = findViewById(R.id.tv_progress);
+//                if (bar.getProgress() < bar.getMax()) {
+//                    tv_progress.setText(String.format("正在下载文件…… （%d/%d）", bar.getProgress(), bar.getMax()));
+//                } else {
+//                    clean();
+//                    bar.setVisibility(View.INVISIBLE);
+//                    if(failCounter.get() > 0 && upscaleFailCounter.get() == 0) {
+//                        tv_progress.setText(failCounter.get() + "张卡面下载失败。");
+//                    } else if(failCounter.get() == 0 && upscaleFailCounter.get() > 0) {
+//                        tv_progress.setText(upscaleFailCounter.get() + "张卡面超分失败。");
+//                    } else if(failCounter.get() > 0 && upscaleFailCounter.get() > 0) {
+//                        tv_progress.setText(upscaleFailCounter.get() + "张卡面超分失败，" + failCounter.get() + "张卡面下载失败。");
+//                    } else {
+//                        tv_progress.setText("完成。");
+//                    }
+//                    tv_progress.append("\n\n图片已保存至DCIM/BestdoriCardDownload/目录。");
+//                    Button btn_finish = findViewById(R.id.button_finish);
+//                    btn_finish.setVisibility(View.VISIBLE);
+//                }
+
+            //});
+        } catch (JSONException e) {
+            System.err.println("JSON解析错误: " + e.getMessage());
+            showOnLog("JSON解析错误: " + e.getMessage() + "\n");
+            failCounter.getAndIncrement();
+        } catch (Exception e) {
+            System.err.println("未知错误: " + e.getMessage());
+            showOnLog("JSON解析错误: " + e.getMessage() + "\n");
+            failCounter.getAndIncrement();
+        } finally {
             runOnUiThread(() -> {
                 ProgressBar bar = findViewById(R.id.progressBar2);
                 int currentIndex = bar.getProgress() + 1;
@@ -307,16 +345,7 @@ public class DownloadActivity extends AppCompatActivity implements Upscaler.Outp
                     Button btn_finish = findViewById(R.id.button_finish);
                     btn_finish.setVisibility(View.VISIBLE);
                 }
-
             });
-        } catch (JSONException e) {
-            System.err.println("JSON解析错误: " + e.getMessage());
-            showOnLog("JSON解析错误: " + e.getMessage() + "\n");
-            failCounter.getAndIncrement();
-        } catch (Exception e) {
-            System.err.println("未知错误: " + e.getMessage());
-            showOnLog("JSON解析错误: " + e.getMessage() + "\n");
-            failCounter.getAndIncrement();
         }
     }
 
